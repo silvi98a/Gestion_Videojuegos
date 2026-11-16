@@ -1,91 +1,90 @@
-#Titulo en minúsculas y todo junto (sin espacios)
-def tituloNormalizado(titulo):
-    return "".join(titulo.split()).casefold()
+def normalizar_titulo(titulo):
+    return " ".join(titulo.split()).lower()
 
-#para generar titulo
-def crearId(titulo):
-    return tituloNormalizado(titulo)
 
-#para validar el titulo y quitar espacios extra
-def validarTit(titulo):
-    if not isinstance(titulo,str) or not titulo.strip():
-            raise ValueError("El titulo no puedo estar vacío")
+def normalizar_genero(genero):
+    return " ".join(genero.split()).capitalize()
+
+
+def validar_titulo(titulo):
+    if not isinstance(titulo, str) or not titulo.strip():
+        raise ValueError("El título no puede estar vacío")
     return " ".join(titulo.split())
 
-#para validar el año, devuelve string normalizado
-def validarAnio(anio):
-    if isinstance(anio,bool) or not isinstance(anio,int) or anio <= 0:
-        raise ValueError("El año tiene que ser entero")
+
+def validar_anio(anio):
+    if isinstance(anio, bool) or not isinstance(anio, int) or anio <= 0:
+        raise ValueError("El año tiene que ser un entero positivo")
     return anio
 
-#para validar el género, devuelve un string normalizado
-def validarGenero(genero):
-    if isinstance(genero,str):
-        raise ValueError("")
-    normalizar = {
-        " ".join(genero.split()).capitalize()
-        for genero in genero
-        if isinstance(genero,str) and genero.strip()
+
+def validar_generos(generos):
+    if isinstance(generos, str):
+        generos = [generos]
+    resultado = set()
+    for genero in generos:
+        if isinstance(genero, str) and genero.strip():
+            resultado.add(normalizar_genero(genero))
+    if not resultado:
+        raise ValueError("El videojuego tiene que tener al menos un género")
+    return resultado
+
+
+def agregar_videojuego(catalogo, titulo, anio, generos):
+    titulo = validar_titulo(titulo)
+    anio = validar_anio(anio)
+    generos = validar_generos(generos)
+
+    id_juego = normalizar_titulo(titulo)
+    if id_juego in catalogo:
+        raise ValueError(f"Ya existe el videojuego '{titulo}'")
+
+    catalogo[id_juego] = {"titulo": titulo, "anio": anio, "generos": generos}
+    return id_juego
+
+
+def obtener_videojuego(catalogo, titulo):
+    return catalogo.get(normalizar_titulo(titulo))
+
+
+def listar_videojuegos(catalogo):
+    return [catalogo[id_juego] for id_juego in sorted(catalogo)]
+
+
+def modificar_videojuego(
+    catalogo, titulo, nuevo_titulo=None, nuevo_anio=None, nuevos_generos=None
+):
+    id_actual = normalizar_titulo(titulo)
+    if id_actual not in catalogo:
+        raise ValueError(f"No existe el videojuego '{titulo}'")
+
+    juego = catalogo[id_actual]
+    titulo_final = juego["titulo"]
+    anio_final = juego["anio"]
+    generos_final = juego["generos"]
+
+    if nuevo_titulo is not None:
+        titulo_final = validar_titulo(nuevo_titulo)
+    if nuevo_anio is not None:
+        anio_final = validar_anio(nuevo_anio)
+    if nuevos_generos is not None:
+        generos_final = validar_generos(nuevos_generos)
+
+    id_nuevo = normalizar_titulo(titulo_final)
+    if id_nuevo != id_actual and id_nuevo in catalogo:
+        raise ValueError(f"Ya existe el videojuego '{titulo_final}'")
+
+    del catalogo[id_actual]
+    catalogo[id_nuevo] = {
+        "titulo": titulo_final,
+        "anio": anio_final,
+        "generos": generos_final,
     }
-    if not normalizar:
-        raise ValueError("El juego tiene que tener un genero")
-    return normalizar
+    return id_nuevo
 
 
-
-            
-#crea el catálogo
-def nuevoCatalogo():
-    return {}
-
-#para añadir un juego nuevo, en caso de existir una misma ID en el catálogo, salta error
-def anadirJuego(catalogo,titulo,anio,genero):
-    titulo = validarTit(titulo)
-    anio =validarAnio(anio)
-    genero = validarGenero(genero)
-
-    idJuego = crearId(titulo)
-    if idJuego in catalogo:
-        raise ValueError(f"Ya existe `{titulo}` ")
-    catalogo[idJuego] = {"titulo":titulo, "anio":anio,"geneor":genero}
-    return idJuego
-
-#para obteener un juego en concreto
-def obtenerJuego (catalogo,titulo):
-    return catalogo.get(crearId(titulo))
-
-#lista todos los juegos
-def listarJuegos(catalogo):
-    return [catalogo[idJuego] for idJuego in sorted(catalogo)]
-
-#actualizar un juego con datos nuevos, en caso de que el título ya exista, o la id no exista, salta error
-def actualizarJuego(catalogo,titulo,nuevoTit =None,nuevoAnio=None,nuevoGenero=None):
-    idActual = crearId(titulo)
-    if idActual not in catalogo:
-        raise KeyError(f"No existe `{titulo}`.")
-
-    datosJuego = catalogo[idActual]
-    tituloFinal = (datosJuego["titulo"] if nuevoTit is None else validarTit(nuevoTit))
-    anioFinal = (datosJuego["anio"] if nuevoAnio is None else validarAnio(nuevoAnio))
-    generoFinal = (datosJuego["genero"] if nuevoGenero is None else validarGenero(nuevoGenero))
-
-    idNuevo = crearId(tituloFinal)
-    if idNuevo != idActual and idNuevo in catalogo:
-        raise ValueError(f"Ya exite `{tituloFinal}`.")
-
-    del catalogo[idActual]
-    catalogo[idNuevo] = {
-        "titulo": tituloFinal,
-        "anio": anioFinal,
-        "genero": generoFinal
-    }
-    return idNuevo
-
-#eliminar juego, error si no existe la id en concreto
-def eliminarJuego(catalogo,titulo):
-    idJuego = crearId(titulo)
-    if idJuego not in catalogo:
-        raise ValueError(f"No existe ´{titulo}´.")
-    return catalogo.pop(idJuego)
-
-
+def eliminar_videojuego(catalogo, titulo):
+    id_juego = normalizar_titulo(titulo)
+    if id_juego not in catalogo:
+        raise ValueError(f"No existe el videojuego '{titulo}'")
+    return catalogo.pop(id_juego)
