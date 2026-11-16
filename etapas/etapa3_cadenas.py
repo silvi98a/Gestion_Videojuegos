@@ -1,6 +1,7 @@
+#tupla ocmpuesto por titulo, año y género
 def crear_juegos():
-    return [
-        ("The Legend of Zelda", 1986, "Aventura"),
+    return[
+         ("The Legend of Zelda", 1986, "Aventura"),
         ("Super Mario Bros", 1985, "Plataformas"),
         ("Tetris", 1984, "Puzle"),
         ("Zelda II: The Adventure of Link", 1987, "Aventura"),
@@ -8,44 +9,34 @@ def crear_juegos():
         ("Minecraft", 2011, "Sandbox"),
     ]
 
-
+#descompone la tupla y cada valor pasa a ser una variable
 def formatear_juego(juego):
     titulo, anio, genero = juego
     return f"{titulo} ({anio}) - {genero}"
 
-
-def normalizar_texto(texto):
+def normalizar_juego(texto):
     return " ".join(texto.split()).casefold()
 
-
-def buscar_juego_exacto(juegos, titulo):
-    titulo_normalizado = normalizar_texto(titulo)
-    for juego in juegos:
-        if normalizar_texto(juego[0]) == titulo_normalizado:
-            return juego
+def buscar_juego_exacto(juegos,titulo):
+    tit_equivalente = normalizar_juego(titulo)
+    for videojuego in juegos:
+        if normalizar_juego(videojuego[0]) == tit_equivalente:
+            return videojuego
     return None
 
-
 def buscar_texto_parcial(juegos, texto):
-    texto_normalizado = normalizar_texto(texto)
-    return [
-        juego for juego in juegos if texto_normalizado in normalizar_texto(juego[0])
-    ]
+    texto_parcial = normalizar_juego(texto)
+    return [valor for valor in juegos if texto_parcial in normalizar_juego(valor[0])]
 
-
-def mostrar_juegos(juegos):
+def mostrar_juego(juegos):
     if not juegos:
-        print("No hay coincidencias")
+        print ("No hay coincidencias")
         return
     for juego in juegos:
         print(formatear_juego(juego))
 
-
 def pedir_texto():
-    return input(
-        "Dame el nombre del juego o parte de él " "(no escribas nada para salir): "
-    )
-
+    return input("Dame el nombre del juego o parte de el (no escribas nada para salir del buscador): ")
 
 def principal():
     juegos = crear_juegos()
@@ -53,15 +44,14 @@ def principal():
     while True:
         texto = pedir_texto()
         if not texto.strip():
-            print("Fin de la búsqueda")
+            print(" Fin de la búsqueda")
             break
 
-        exacto = buscar_juego_exacto(juegos, texto)
-        if exacto is not None:
-            print(formatear_juego(exacto))
+        busqueda_exacta = buscar_juego_exacto(juegos,texto)
+        if busqueda_exacta is not None:
+            print (f"{formatear_juego(busqueda_exacta)}")
         else:
-            mostrar_juegos(buscar_texto_parcial(juegos, texto))
-
+            mostrar_juego(buscar_texto_parcial(juegos,texto))
 
 if __name__ == "__main__":
     principal()
