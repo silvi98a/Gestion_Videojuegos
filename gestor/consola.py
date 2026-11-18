@@ -1,6 +1,7 @@
 from gestor import catalogo as cata
 from gestor import consultas as cons
 
+
 def mostrar_menu():
     print("---Menú Videojuegos---")
     print("1. Listar videojuegos")
@@ -85,30 +86,30 @@ def opcion_modificar(catalogo):
     if generos_string == "": #Sucede lo mismo que en nuevo_titulo
         nuevos_generos = None
     else:
-        nuevos_generos = generos_string.split(",")
+        nuevos_generos = generos_string.split(",") #la cadena se separa en bloques tomando como referencia las comas
     try:
         cata.modificar_videojuego(catalogo, titulo, nuevo_titulo, nuevo_anio, nuevos_generos)
         print("Videojuego modificado")
     except ValueError as error: #Coge los errores de la función que hemos llamado, en caso de que no exista el videojuego o si ya existe
-        print(f"Error: {error}") 
+        print(f"Error: {error}")
 
 
 def opcion_buscar_parcial(catalogo):
-    texto = input("Texto a buscar en el título: ").strip()
+    texto = input("Texto a buscar en el título: ").strip() #Quitamos espacio en blanco con .strip
     if texto == "":
         print("Error: debes escribir algo")
-        return
-    resultado = cons.buscar_por_titulo(catalogo, texto)
-    mostrar_videojuegos(resultado)
+    else:
+        resultado = cons.buscar_por_titulo(catalogo, texto) #La lista devuelta se mete en una variable
+        mostrar_videojuegos(resultado) #Mostramos esa lista
 
 
 def opcion_filtrar_genero(catalogo):
     genero = input("Género: ").strip()
     if genero == "":
         print("Error: debes escribir un género")
-        return
-    resultado = cons.filtrar_por_genero(catalogo, genero)
-    mostrar_videojuegos(resultado)
+    else:
+        resultado = cons.filtrar_por_genero(catalogo, genero)
+        mostrar_videojuegos(resultado)
 
 
 def opcion_filtrar_anios(catalogo):
@@ -118,27 +119,31 @@ def opcion_filtrar_anios(catalogo):
     except ValueError:
         print("Error: los años deben ser números enteros")
         return
-    if anio_min > anio_max:
+    if anio_min > anio_max: #En caso de que el año mínimo sea mayor que el año máximo 
         print("Error: el año mínimo no puede ser mayor que el máximo")
         return
     resultado = cons.filtrar_por_anios(catalogo, anio_min, anio_max)
     mostrar_videojuegos(resultado)
 
+
 def formatear_videojuego(juego):
+    #Ordenamos el array de generos y los unimos con el join mediante coma y espacio:
     generos = ", ".join(sorted(juego["generos"]))
     return f"{juego['titulo']} ({juego['anio']}) - {generos}"
 
 
 def opcion_estadisticas(catalogo):
-    estadisticas = cons.calcular_estadisticas(catalogo)
+    estadisticas = cons.calcular_estadisticas(catalogo) #Sacamos las estadísticas de un catálogo
     print(f"Total de videojuegos: {estadisticas['total']}")
     if estadisticas["total"] == 0:
-        return
-    print("Videojuegos por género:")
-    for genero, cantidad in sorted(estadisticas["por_genero"].items()):
-        print(f"  - {genero}: {cantidad}")
-    print(f"Más antiguo: {formatear_videojuego(estadisticas['mas_antiguo'])}")
-    print(f"Más reciente: {formatear_videojuego(estadisticas['mas_reciente'])}")
+        print("No hay videojuegos para calcular estadísticas")
+    else:
+        print("Videojuegos por género:")
+        #Usamos .items para sacar cada clave(genero), con su valor(veces que aparecen)
+        for genero, cantidad in sorted(estadisticas["por_genero"].items()):
+            print(f"  - {genero}: {cantidad}")
+        print(f"Más antiguo: {formatear_videojuego(estadisticas['mas_antiguo'])}")
+        print(f"Más reciente: {formatear_videojuego(estadisticas['mas_reciente'])}")
 
 
 def ejecutar_menu(catalogo):
@@ -168,7 +173,7 @@ def ejecutar_menu(catalogo):
             case 8:
                 opcion_eliminar(catalogo)
             case 9:
-                print("Has elegido estadísticas")
+                opcion_estadisticas(catalogo)
             case 0:
                 print("Programa terminado")
                 repetir = False
@@ -176,7 +181,3 @@ def ejecutar_menu(catalogo):
                 print("Opción no válida")
 
 
-catalogo_prueba = {}
-cata.agregar_videojuego(catalogo_prueba, "Hades", 2020, ["acción", "rpg"])
-cata.agregar_videojuego(catalogo_prueba, "Celeste", 2018, ["plataformas"])
-ejecutar_menu(catalogo_prueba)
