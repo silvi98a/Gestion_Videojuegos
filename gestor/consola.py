@@ -1,5 +1,5 @@
 from gestor import catalogo as cata
-
+from gestor import consultas as cons
 
 def mostrar_menu():
     print("---Menú Videojuegos---")
@@ -93,6 +93,54 @@ def opcion_modificar(catalogo):
         print(f"Error: {error}") 
 
 
+def opcion_buscar_parcial(catalogo):
+    texto = input("Texto a buscar en el título: ").strip()
+    if texto == "":
+        print("Error: debes escribir algo")
+        return
+    resultado = cons.buscar_por_titulo(catalogo, texto)
+    mostrar_videojuegos(resultado)
+
+
+def opcion_filtrar_genero(catalogo):
+    genero = input("Género: ").strip()
+    if genero == "":
+        print("Error: debes escribir un género")
+        return
+    resultado = cons.filtrar_por_genero(catalogo, genero)
+    mostrar_videojuegos(resultado)
+
+
+def opcion_filtrar_anios(catalogo):
+    try:
+        anio_min = int(input("Año mínimo: ").strip())
+        anio_max = int(input("Año máximo: ").strip())
+    except ValueError:
+        print("Error: los años deben ser números enteros")
+        return
+    if anio_min > anio_max:
+        print("Error: el año mínimo no puede ser mayor que el máximo")
+        return
+    resultado = cons.filtrar_por_anios(catalogo, anio_min, anio_max)
+    mostrar_videojuegos(resultado)
+
+def formatear_videojuego(juego):
+    generos = ", ".join(sorted(juego["generos"]))
+    return f"{juego['titulo']} ({juego['anio']}) - {generos}"
+
+
+def opcion_estadisticas(catalogo):
+    estadisticas = cons.calcular_estadisticas(catalogo)
+    print(f"Total de videojuegos: {estadisticas['total']}")
+    if estadisticas["total"] == 0:
+        return
+    print("Videojuegos por género:")
+    for genero, cantidad in sorted(estadisticas["por_genero"].items()):
+        print(f"  - {genero}: {cantidad}")
+    print(f"Más antiguo: {formatear_videojuego(estadisticas['mas_antiguo'])}")
+    print(f"Más reciente: {formatear_videojuego(estadisticas['mas_reciente'])}")
+
+
 def ejecutar_menu(catalogo):
     repetir = True
     while repetir == True:
@@ -108,11 +156,11 @@ def ejecutar_menu(catalogo):
             case 2:
                 opcion_buscar_exacto(catalogo)
             case 3: 
-                print("Has elegido buscar parcial")
+                opcion_buscar_parcial(catalogo)
             case 4:
-                print("Has elegido filtrar por género")
+                opcion_filtrar_genero(catalogo)
             case 5: 
-                print("Has elegido filtrar por años")
+                opcion_filtrar_anios(catalogo)
             case 6:
                 opcion_anadir(catalogo)
             case 7: 
